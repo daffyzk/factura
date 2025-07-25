@@ -1,27 +1,39 @@
 use std::fs;
 use serde::{Deserialize, Serialize};
 use toml;
+use serde_json;
 
 use crate::types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice};
 
 pub trait FromFile {
-    fn from_json(file: String) -> Result<RawInvoice, Box<dyn std::error::Error>> {
-        let json_str = match fs::read_to_string(file) {
-            Ok(v) => v,
-            Err(e) => { return Err(Box::new(e)) },
-        };
-        let file_raw: FileInvoice = serde_json::from_str(&json_str).unwrap();
-        Ok(RawInvoice::from(file_raw))
+    /// Read a json file with a slice of Invoices and convert it to raw type 
+    fn from_json(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
+        let parser = |s: &str| serde_json::from_str::<Vec<FileInvoice>>(s).map_err(|e| Box::new(e));
+        let invoices: Vec<RawInvoice> = list_raw_invoices(file, parser).unwrap();
+        Ok(invoices)
     }
-    fn from_toml(file: String) -> Result<RawInvoice, Box<dyn std::error::Error>> {
-        let toml_str = match fs::read_to_string(file) {
-            Ok(v) => v,
-            Err(e) => { return Err(Box::new(e)) },
-        };
-        let file_raw: FileInvoice = toml::from_str(&toml_str)?;
-        Ok(RawInvoice::from(file_raw))
+    /// Read a toml file with a slice of Invoices and convert it to raw type 
+    fn from_toml(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
+        let parser = |s: &str| toml::from_str::<Vec<FileInvoice>>(s).map_err(|e| Box::new(e));
+        let invoices: Vec<RawInvoice> = list_raw_invoices(file, parser).unwrap();
+        Ok(invoices)
     }
 }
+
+fn list_raw_invoices <F,E> (file: String, parser_func: F) -> 
+    Result<Vec<RawInvoice>, Box<std::io::Error>> 
+    where 
+        F: FnOnce(&str) -> Result<Vec<FileInvoice>, Box<E>>,
+        E: std::error::Error,
+{ 
+    let file_string: String = match fs::read_to_string(file) {
+        Ok(v) => v,
+        Err(e) => { return Err(Box::new(e)) },
+    };
+    let file_raw: Vec<FileInvoice> = parser_func(file_string.as_str()).unwrap();
+    Ok(file_raw.into_iter().map(RawInvoice::from).collect())
+}
+
 
 impl From<FileInvoice> for RawInvoice{
     fn from(i: FileInvoice) -> RawInvoice {
