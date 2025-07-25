@@ -49,7 +49,7 @@ pub trait Parseable {
     }
 } 
 
-pub trait NewInvoice {
+pub trait New {
     /// Return new instance of self, with parsed invoice
     fn new(raw: RawInvoice) -> Self where Self: Sized + Parseable {
         Self::from_parsed(Self::parse_raw_invoice(raw))

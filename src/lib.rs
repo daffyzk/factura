@@ -1,5 +1,6 @@
 pub mod invoice;
 pub mod types;
+pub mod reader;
 pub mod simple_invoice;
 
 // use types::ParsedInvoice;

@@ -1,4 +1,4 @@
-use crate::invoice::{ExportsHTML, ExportsPDF, NewInvoice, Parseable};
+use crate::invoice::{ExportsHTML, ExportsPDF, New, Parseable};
 use crate::types::{InvoiceData, Item, ParsedInvoice, Payment, PersonalInfo, Total};
 
 use std::fs::File;
@@ -41,7 +41,7 @@ pub struct SimpleInvoice {
 }
 
 impl Parseable  for SimpleInvoice {} 
-impl NewInvoice for SimpleInvoice {
+impl New for SimpleInvoice {
     fn from_parsed(parsed: ParsedInvoice) -> Self {
         SimpleInvoice { 
             invoice: parsed, 
