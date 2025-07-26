@@ -1,7 +1,14 @@
 use crate::types::{ParsedInvoice, RawInvoice, Item, Total};
 use genpdf::fonts::{self, FontData, FontFamily};
 
-pub trait Parseable { 
+pub trait IsInvoice { 
+
+    /// Return new instance of self, with parsed invoice
+    fn new(raw: RawInvoice) -> Self where Self: Sized + IsInvoice;
+    
+    // Return a new instance of self
+    // This needs to be implemented by the Invoice struct you made
+    // fn from_parsed(parsed: ParsedInvoice) -> Self where Self: Sized; 
 
     /// Take Raw invoice data and turn his data into ParsedInvoice
     fn parse_raw_invoice(data: RawInvoice) -> ParsedInvoice {  
@@ -48,17 +55,6 @@ pub trait Parseable {
         }
     }
 } 
-
-pub trait New {
-    /// Return new instance of self, with parsed invoice
-    fn new(raw: RawInvoice) -> Self where Self: Sized + Parseable {
-        Self::from_parsed(Self::parse_raw_invoice(raw))
-    }
-    
-    /// Return a new instance of self
-    /// This needs to be implemented by the Invoice struct you made
-    fn from_parsed(parsed: ParsedInvoice) -> Self where Self: Sized; 
-}
 
 pub trait ExportsHTML {  
     fn to_html(self, file_name: String) -> Result<(), Box<dyn std::error::Error>>;

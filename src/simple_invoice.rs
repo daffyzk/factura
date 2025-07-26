@@ -1,5 +1,5 @@
-use crate::invoice::{ExportsHTML, ExportsPDF, New, Parseable};
-use crate::types::{InvoiceData, Item, ParsedInvoice, Payment, PersonalInfo, Total};
+use crate::invoice::{ExportsHTML, ExportsPDF, IsInvoice};
+use crate::types::{InvoiceData, Item, ParsedInvoice, Payment, PersonalInfo, RawInvoice, Total};
 
 use std::fs::File;
 use std::io::Write;
@@ -40,11 +40,11 @@ pub struct SimpleInvoice {
     font_family: FontFamily<FontData>
 }
 
-impl Parseable  for SimpleInvoice {} 
-impl New for SimpleInvoice {
-    fn from_parsed(parsed: ParsedInvoice) -> Self {
+impl IsInvoice for SimpleInvoice {
+
+    fn new(raw: RawInvoice) -> Self where Self: Sized + IsInvoice {
         SimpleInvoice { 
-            invoice: parsed, 
+            invoice: raw, 
             font_family: Self::set_pdf_fonts(None).unwrap(),
         }
     }
