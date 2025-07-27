@@ -1,14 +1,7 @@
 use crate::types::{ParsedInvoice, RawInvoice, Item, Total};
 use genpdf::fonts::{self, FontData, FontFamily};
 
-pub trait IsInvoice { 
-
-    /// Return new instance of self, assigning a parsed invoice into a field
-    fn new(raw: RawInvoice) -> Self where Self: Sized + IsInvoice;
-    
-    // Return a new instance of self
-    // This needs to be implemented by the Invoice struct you made
-    // fn from_parsed(parsed: ParsedInvoice) -> Self where Self: Sized; 
+pub trait Invoice { 
 
     /// Take Raw invoice data and turn his data into ParsedInvoice
     fn parse_raw_invoice(data: RawInvoice) -> ParsedInvoice {  

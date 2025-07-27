@@ -1,4 +1,4 @@
-use crate::invoice::IsInvoice;
+use crate::invoice::Invoice;
 use crate::types::{ParsedInvoice, RawInvoice};
 use std::error::Error as stdError;
 
@@ -27,16 +27,19 @@ pub struct SimpleInvoice {
     font_family: FontFamily<FontData>
 }
 
-impl IsInvoice for SimpleInvoice {
+impl Invoice for SimpleInvoice {}
 
-    fn new(raw: RawInvoice) -> Self where Self: Sized + IsInvoice {
+impl SimpleInvoice {
+
+    pub fn new(raw: RawInvoice) -> Self {
         SimpleInvoice { 
             invoice: Self::parse_raw_invoice(raw), 
             #[cfg(feature = "pdf")]
             font_family: Self::set_pdf_fonts(None).unwrap(),
         }
     }
-} 
+}
+
 
 
 #[cfg(feature = "html")]
