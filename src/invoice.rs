@@ -3,7 +3,7 @@ use genpdf::fonts::{self, FontData, FontFamily};
 
 pub trait IsInvoice { 
 
-    /// Return new instance of self, with parsed invoice
+    /// Return new instance of self, assigning a parsed invoice into a field
     fn new(raw: RawInvoice) -> Self where Self: Sized + IsInvoice;
     
     // Return a new instance of self
@@ -56,10 +56,13 @@ pub trait IsInvoice {
     }
 } 
 
+
+#[cfg(feature = "html")]
 pub trait ExportsHTML {  
     fn to_html(self, file_name: String) -> Result<(), Box<dyn std::error::Error>>;
 }
 
+#[cfg(feature = "pdf")]
 pub trait ExportsPDF { 
     fn to_pdf(self, file_name: String) -> Result<(), Box<dyn std::error::Error>>;
     

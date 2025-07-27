@@ -1,3 +1,6 @@
+#[cfg(feature = "from_file")]
+pub mod reader {
+
 use std::fs;
 use serde::{Deserialize, Serialize};
 use toml;
@@ -5,7 +8,8 @@ use serde_json;
 
 use crate::types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice};
 
-pub trait FromFile {
+/// Implementing this trait into an Invoice struct, allows generating an invoice from a json/toml file.
+pub trait ReadInvoice {
     /// Read a json file with a slice of Invoices and convert it to raw type 
     fn from_json(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
         let parser = |s: &str| serde_json::from_str::<Vec<FileInvoice>>(s).map_err(|e| Box::new(e));
@@ -20,6 +24,7 @@ pub trait FromFile {
     }
 }
 
+/// writing this was a big waste of time, but it saved 2 lines of code
 fn list_raw_invoices <F,E> (file: String, parser_func: F) -> 
     Result<Vec<RawInvoice>, Box<std::io::Error>> 
     where 
@@ -84,43 +89,44 @@ impl From<FileItemRaw> for ItemRaw {
 
 #[derive(Serialize, Deserialize)]
 struct FileInvoice {
-    pub from: FilePersonalInfo,
-    pub to: FilePersonalInfo,
-    pub items: Vec<FileItemRaw>,
-    pub payment: FilePayment,
-    pub data: FileInvoiceData, 
+    from: FilePersonalInfo,
+    to: FilePersonalInfo,
+    items: Vec<FileItemRaw>,
+    payment: FilePayment,
+    data: FileInvoiceData, 
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct FilePersonalInfo {
-    pub email: String,
-    pub name: String,
-    pub addr_one: String,
-    pub addr_two: String,
-    pub postal: String,
-    pub state: String,
-    pub country: String,
+struct FilePersonalInfo {
+    email: String,
+    name: String,
+    addr_one: String,
+    addr_two: String,
+    postal: String,
+    state: String,
+    country: String,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct FileItemRaw {
-    pub description: String,
-    pub quantity: u8,
-    pub amount: u32,
-    pub tax_percent: u8,
+struct FileItemRaw {
+    description: String,
+    quantity: u8,
+    amount: u32,
+    tax_percent: u8,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct FileInvoiceData {
-    pub invoice_number: u16,
-    pub due_date: String,
-    pub issue_date: String,
+struct FileInvoiceData {
+    invoice_number: u16,
+    due_date: String,
+    issue_date: String,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct FilePayment {
-    pub wallet_address: String,
-    pub currency: String,
-    pub tx: String,
+struct FilePayment {
+    wallet_address: String,
+    currency: String,
+    tx: String,
 }
 
+}

@@ -1,42 +1,29 @@
-use crate::invoice::{ExportsHTML, ExportsPDF, IsInvoice};
-use crate::types::{InvoiceData, Item, ParsedInvoice, Payment, PersonalInfo, RawInvoice, Total};
+use crate::invoice::IsInvoice;
+use crate::types::{ParsedInvoice, RawInvoice};
+use std::error::Error as stdError;
 
-use std::fs::File;
+#[cfg(feature = "html")]
 use std::io::Write;
-
+#[cfg(feature = "html")]
 use askama::Template;
-use genpdf::elements::{Break, FrameCellDecorator, LinearLayout, Paragraph, TableLayout, TableLayoutRow};
-use genpdf::fonts::{FontData, FontFamily};
-use genpdf::style::{Style, StyledString};
-use genpdf::{Margins, Mm};
-use genpdf::{Alignment, Document, Element, SimplePageDecorator};
 
-#[derive(Template)]
-#[template(path = "simple_invoice.html")]
-struct TemplateableInvoice {
-    pub from: PersonalInfo,
-    pub to: PersonalInfo,
-    pub items: Vec<Item>,
-    pub total: Total,
-    pub payment: Payment,
-    pub data: InvoiceData,
-}
+#[cfg(feature = "pdf")]
+use crate::invoice::ExportsPDF;
+#[cfg(feature = "pdf")]
+use genpdf::{ 
+    error::Error as genpdfError,
+    Margins, Mm, Alignment, Document, Element, SimplePageDecorator,
+    fonts::{FontData, FontFamily},
+    elements::{Break, FrameCellDecorator, LinearLayout, Paragraph, TableLayout, TableLayoutRow},
+    style::{Style, StyledString},
+};
 
-impl From<ParsedInvoice> for TemplateableInvoice {
-    fn from(parsed: ParsedInvoice) -> Self {
-        TemplateableInvoice {
-            from: parsed.from,
-            to: parsed.to,
-            items: parsed.items,
-            total: parsed.total,
-            payment: parsed.payment,
-            data: parsed.data,
-        }
-    }
-}
-
+/// Simple invoice implementation, the style is nothing to write home about, but it does it's job. 
+/// Could return either HTML or PDF, depending on the enable feature flags in Cargo.toml 
 pub struct SimpleInvoice {
     invoice: ParsedInvoice,
+
+    #[cfg(feature = "pdf")]
     font_family: FontFamily<FontData>
 }
 
@@ -44,29 +31,32 @@ impl IsInvoice for SimpleInvoice {
 
     fn new(raw: RawInvoice) -> Self where Self: Sized + IsInvoice {
         SimpleInvoice { 
-            invoice: raw, 
+            invoice: Self::parse_raw_invoice(raw), 
+            #[cfg(feature = "pdf")]
             font_family: Self::set_pdf_fonts(None).unwrap(),
         }
     }
 } 
 
-impl ExportsHTML for SimpleInvoice {
-    fn to_html(self, file_name: String) -> Result<(), Box<dyn std::error::Error>> {
+
+#[cfg(feature = "html")]
+impl crate::invoice::ExportsHTML for SimpleInvoice {
+    fn to_html(self, file_name: String) -> Result<(), Box<dyn stdError>> {
         let invoice: TemplateableInvoice = TemplateableInvoice::from(self.invoice.clone());
         let rendered = invoice.render()?; 
 
-        let mut file = File::create(&format!("{}.html", file_name))?;
+        let mut file = std::fs::File::create(&format!("{}.html", file_name))?;
         file.write_all(rendered.as_bytes())?;
         Ok(())
 
     }
 }
 
+#[cfg(feature = "pdf")]
 impl ExportsPDF for SimpleInvoice {
 
-    fn to_pdf(self, file_name: String) -> Result<(), Box<dyn std::error::Error>> {
-
-         
+    fn to_pdf(self, file_name: String) -> Result<(), Box<dyn stdError>> {
+ 
         let invoice = self.invoice.clone();
         let pad_text = Margins::from((Mm::from(1), Mm::from(0)));
         let pad_box  = Margins::from(Mm::from(2));
@@ -304,6 +294,7 @@ impl ExportsPDF for SimpleInvoice {
     }
 }
 
+#[cfg(feature = "pdf")]
 fn bold_styled_string(text: &str) -> StyledString {
     StyledString {
         s:text.to_string(), 
@@ -311,7 +302,8 @@ fn bold_styled_string(text: &str) -> StyledString {
     }
 }
 
-fn match_row(rowsult: Result<(), genpdf::error::Error> ) {
+#[cfg(feature = "pdf")]
+fn match_row(rowsult: Result<(), genpdfError> ) {
     match rowsult {
         Ok(_r)  => { 
         // println!("LINE PUSHED: {:?}", r)
@@ -320,10 +312,39 @@ fn match_row(rowsult: Result<(), genpdf::error::Error> ) {
     }
 }
 
-pub fn genpdf_error_convert(e: genpdf::error::Error ) -> Box<dyn std::error::Error> {
+#[cfg(feature = "pdf")]
+/// Takes a genpdfError and converts it to Box<dyn stdError>
+/// meant as a helper for the pdf implementation
+pub fn genpdf_error_convert(e: genpdfError ) -> Box<dyn stdError> {
     Box::new(
         std::io::Error::new(std::io::ErrorKind::Other, e.to_string())
-    ) as Box<dyn std::error::Error + 'static>
+    ) as Box<dyn stdError + 'static>
 }
 
 
+#[cfg(feature = "html")]
+#[derive(Template)]
+#[template(path = "simple_invoice.html")]
+/// Askama Template type, which is meant to be converted from a ParsedInvoice
+struct TemplateableInvoice {
+    pub from: crate::types::PersonalInfo,
+    pub to: crate::types::PersonalInfo,
+    pub items: Vec<crate::types::Item>,
+    pub total: crate::types::Total,
+    pub payment: crate::types::Payment,
+    pub data: crate::types::InvoiceData,
+}
+
+#[cfg(feature = "html")]
+impl From<ParsedInvoice> for TemplateableInvoice {
+    fn from(parsed: ParsedInvoice) -> Self {
+        TemplateableInvoice {
+            from: parsed.from,
+            to: parsed.to,
+            items: parsed.items,
+            total: parsed.total,
+            payment: parsed.payment,
+            data: parsed.data,
+        }
+    }
+}
