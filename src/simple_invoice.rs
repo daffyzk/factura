@@ -30,7 +30,6 @@ pub struct SimpleInvoice {
 impl Invoice for SimpleInvoice {}
 
 impl SimpleInvoice {
-
     pub fn new(raw: RawInvoice) -> Self {
         SimpleInvoice { 
             invoice: Self::parse_raw_invoice(raw), 
@@ -38,9 +37,16 @@ impl SimpleInvoice {
             font_family: Self::set_pdf_fonts(None).unwrap(),
         }
     }
+
+    pub fn get_invoice(self) -> ParsedInvoice {
+        self.invoice.clone()
+    }
+
+    pub fn update_invoice(mut self, invoice: ParsedInvoice) -> Result<(), Box<dyn stdError>> {
+        self.invoice = invoice;
+        Ok(())
+    }
 }
-
-
 
 #[cfg(feature = "html")]
 impl crate::invoice::ExportsHTML for SimpleInvoice {
@@ -51,7 +57,6 @@ impl crate::invoice::ExportsHTML for SimpleInvoice {
         let mut file = std::fs::File::create(&format!("{}.html", file_name))?;
         file.write_all(rendered.as_bytes())?;
         Ok(())
-
     }
 }
 
