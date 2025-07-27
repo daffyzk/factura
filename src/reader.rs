@@ -8,7 +8,11 @@ use serde_json;
 
 use crate::types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice};
 
-/// Implementing this trait into an Invoice struct, allows generating an invoice from a json/toml file.
+/// Allows generating an invoice from a json/toml file.
+pub struct Reader {}
+impl ReadInvoice for Reader {}
+
+/// Implementing this trait, allows generating an invoice from a json/toml file.
 pub trait ReadInvoice {
     /// Read a json file with a slice of Invoices and convert it to raw type 
     fn from_json(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
