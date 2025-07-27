@@ -12,13 +12,13 @@ use crate::types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice};
 pub struct InvoiceReader {}
 impl InvoiceReader {
     /// Read a json file with a slice of Invoices and convert it to raw type 
-    fn from_json(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
+    pub fn from_json(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
         let parser = |s: &str| serde_json::from_str::<Vec<FileInvoice>>(s).map_err(|e| Box::new(e));
         let invoices: Vec<RawInvoice> = list_raw_invoices(file, parser).unwrap();
         Ok(invoices)
     }
     /// Read a toml file with a slice of Invoices and convert it to raw type 
-    fn from_toml(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
+    pub fn from_toml(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
         let parser = |s: &str| toml::from_str::<Vec<FileInvoice>>(s).map_err(|e| Box::new(e));
         let invoices: Vec<RawInvoice> = list_raw_invoices(file, parser).unwrap();
         Ok(invoices)
