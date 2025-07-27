@@ -4,5 +4,5 @@ mod simple_invoice;
 pub mod types;
 
 pub use invoice::{Invoice, ExportsPDF, ExportsHTML};
-pub use reader::reader::ReadInvoice;
+pub use reader::reader::{Reader, ReadInvoice};
 pub use simple_invoice::SimpleInvoice;
