@@ -10,22 +10,25 @@ use crate::types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice};
 
 /// Allows generating an invoice from a json/toml file.
 pub struct InvoiceReader {}
-impl ReadInvoice for InvoiceReader {}
-
-/// Implementing this trait, allows generating an invoice from a json/toml file.
-pub trait ReadInvoice {
-    /// Read a json file with a slice of Invoices and convert it to raw type 
+impl ReadInvoice for InvoiceReader {
     fn from_json(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
         let parser = |s: &str| serde_json::from_str::<Vec<FileInvoice>>(s).map_err(|e| Box::new(e));
         let invoices: Vec<RawInvoice> = list_raw_invoices(file, parser).unwrap();
         Ok(invoices)
     }
-    /// Read a toml file with a slice of Invoices and convert it to raw type 
     fn from_toml(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>> {
         let parser = |s: &str| toml::from_str::<Vec<FileInvoice>>(s).map_err(|e| Box::new(e));
         let invoices: Vec<RawInvoice> = list_raw_invoices(file, parser).unwrap();
         Ok(invoices)
     }
+}
+
+/// Implementing this trait, allows generating an invoice from a json/toml file.
+pub trait ReadInvoice {
+    /// Read a json file with a slice of Invoices and convert it to raw type 
+    fn from_json(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>>;
+    /// Read a toml file with a slice of Invoices and convert it to raw type 
+    fn from_toml(file: String) -> Result<Vec<RawInvoice>, Box<dyn std::error::Error>>;
 }
 
 /// writing this was a big waste of time, but it saved 2 lines of code
