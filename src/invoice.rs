@@ -1,5 +1,6 @@
 use crate::types::{ParsedInvoice, RawInvoice, Item, Total};
-use genpdf::fonts::{self, FontData, FontFamily};
+use genpdf::fonts::{FontData, FontFamily};
+use rust_embed::RustEmbed;
 
 pub trait Invoice { 
 
@@ -62,31 +63,52 @@ pub trait ExportsPDF {
     /// This method sets the font for PDF generation.
     ///
     /// It's very important to use this, or something similar if you implement your own invoice design
-    fn set_pdf_fonts(font_path: Option<String>) -> Result<FontFamily<FontData>, Box<dyn std::error::Error>>  {
-        let prj_fonts: String;
-        match font_path {
-            Some(p) => prj_fonts = p,
-            None => prj_fonts = "fonts/".to_string(),
-        }
-        let font_list: [(&str, &str); 3] = [
-            ("LiberationSans", &prj_fonts),
-            ("LiberationSerif", &prj_fonts),
-            ("LiberationMono", &prj_fonts)
-        ];
+    fn set_pdf_fonts() -> Result<FontFamily<FontData>, Box<dyn std::error::Error>>  {
         
-        let (font_name, font_dir) = font_list[2];
+        let font = Liberation::Mono;
+        let font_variations = font.variations();        
 
-        match fonts::from_files(font_dir, font_name, None) {
-            Ok(v)  => { println!("font fonted"); return Ok(v) },
-            Err(e) => { 
-                return Err(
-                    Box::new( 
-                        std::io::Error::new(
-                            std::io::ErrorKind::Other, 
-                            e.to_string()
-                        )
-                    ) as Box<dyn std::error::Error + 'static>); 
-            },
-        }
+        let vars: Vec<FontData> = font_variations.into_iter().map(|var| {
+            let bytes = Fonts::get(&var).unwrap().data.into_owned();
+            genpdf::fonts::FontData::new(bytes, None).unwrap()
+        }).collect();
+        
+        Ok(genpdf::fonts::FontFamily {
+            regular: vars.get(0).unwrap().clone(),
+            bold: vars.get(1).unwrap().clone(),
+            italic: vars.get(2).unwrap().clone(),
+            bold_italic: vars.get(3).unwrap().clone(),
+        })
     }
 }
+
+#[derive(RustEmbed)]
+#[folder = "fonts"]
+struct Fonts;
+
+enum Liberation {
+    Mono,
+    Sans,
+    Serif,
+}
+
+impl Liberation {
+    pub fn value(&self) -> &'static str {
+        match self {
+            Liberation::Mono => "LiberationMono",
+            Liberation::Sans => "LiberationSans",
+            Liberation::Serif => "LiberationSerif",
+        }
+    }
+
+    pub fn variations(&self) -> [String;4] { 
+        let font_name = self.value();
+        [
+        format!("{}-Regular.ttf", font_name),
+        format!("{}-Bold.ttf", font_name),
+        format!("{}-Italic.ttf", font_name),
+        format!("{}-BoldItalic.ttf", font_name),
+        ]
+    }
+}
+

@@ -34,7 +34,7 @@ impl SimpleInvoice {
         SimpleInvoice { 
             invoice: Self::parse_raw_invoice(raw), 
             #[cfg(feature = "pdf")]
-            font_family: Self::set_pdf_fonts(None).unwrap(),
+            font_family: Self::set_pdf_fonts().unwrap(),
         }
     }
 
