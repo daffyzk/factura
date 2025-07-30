@@ -4,11 +4,11 @@ use factura::{types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice}, 
 fn test_simple_invoice() {
     let raw = RawInvoice {
         from: PersonalInfo { 
-            email: String::from("joe@services.com"), 
+            email: String::from("joe_schower@supaservices.com"), 
             name: String::from("Joe's Services"), 
             addr_one: String::from("Leuteritzweg"), 
             addr_two: String::from("13"), 
-            postal: String::from("22399"), 
+            postal: String::from("22399"),
             state: String::from("Hamburg"), 
             country: String::from("Germany") 
         },

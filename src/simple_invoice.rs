@@ -79,7 +79,7 @@ impl ExportsPDF for SimpleInvoice {
 
         let mut layout = LinearLayout::vertical();
 
-        let mut header_table: TableLayout = TableLayout::new(vec![3, 7]); // 2 cols are 30% and 70%
+        let mut header_table: TableLayout = TableLayout::new(vec![4, 6]); // 2 cols are 40% and 60%
         let cell = FrameCellDecorator::new(false, false, false);
 
         header_table.set_cell_decorator(cell);
