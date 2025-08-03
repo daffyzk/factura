@@ -1,8 +1,24 @@
-use factura::{types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice}, ExportsPDF, SimpleInvoice};
+use factura::{types::{InvoiceData, ItemRaw, Payment, PersonalInfo, RawInvoice}, ExportsPDF, ExportsHTML, SimpleInvoice};
+
 
 #[test]
-fn test_simple_invoice() {
-    let raw = RawInvoice {
+fn test_pdf() {
+    let raw = raw_invoice();
+    let invoice = SimpleInvoice::new(raw);
+    let result = invoice.to_pdf(String::from("services_5_jan_2025")).unwrap();
+    assert_eq!(result, ());
+}
+
+#[test]
+fn test_html() {
+    let raw = raw_invoice();
+    let invoice = SimpleInvoice::new(raw);
+    let result = invoice.to_html(String::from("services_5_jan_2025")).unwrap();
+    assert_eq!(result, ());
+}
+
+fn raw_invoice() -> RawInvoice {
+    RawInvoice {
         from: PersonalInfo { 
             email: String::from("joe_schower@supaservices.com"), 
             name: String::from("Joe's Services"), 
@@ -45,8 +61,7 @@ fn test_simple_invoice() {
             due_date: String::from("16/jan/2025"), 
             issue_date: String::from("5/jan/2025") 
         }
-    };
-    let invoice = SimpleInvoice::new(raw);
-    let result = invoice.to_pdf(String::from("services_5_jan_2025")).unwrap();
-    assert_eq!(result, ());
+    }
 }
+
+
