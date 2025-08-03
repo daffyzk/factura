@@ -2,6 +2,8 @@ use crate::types::{ParsedInvoice, RawInvoice, Item, Total};
 use genpdf::fonts::{FontData, FontFamily};
 use rust_embed::RustEmbed;
 
+
+/// Trait that represents an invoice, this can be used to create your own invoice format
 pub trait Invoice { 
 
     /// Take Raw invoice data and turn his data into ParsedInvoice
@@ -52,11 +54,13 @@ pub trait Invoice {
 
 
 #[cfg(feature = "html")]
+/// Allows an invoice format to be formatted into an HTML file
 pub trait ExportsHTML {  
     fn to_html(self, file_name: String) -> Result<(), Box<dyn std::error::Error>>;
 }
 
 #[cfg(feature = "pdf")]
+/// Allows an invoice format to be formatted into a PDF file
 pub trait ExportsPDF { 
     fn to_pdf(self, file_name: String) -> Result<(), Box<dyn std::error::Error>>;
     
@@ -84,6 +88,7 @@ pub trait ExportsPDF {
 
 #[derive(RustEmbed)]
 #[folder = "fonts"]
+/// Some open source fonts are provided in this crate to make it easier to run to_pdf 
 struct Fonts;
 
 enum Liberation {

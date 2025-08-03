@@ -2,7 +2,7 @@
 name = "factura"
 version = "0.1.0"
 edition = "2024"
-description = "A library to generate PDF or HTML payment invoices, without external application dependencies"
+description = "Generate PDF or HTML invoices, without any external application dependencies"
 licence = "MIT"
 
 [alias]

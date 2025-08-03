@@ -18,8 +18,9 @@ use genpdf::{
     style::{Style, StyledString},
 };
 
-/// Simple invoice implementation, the style is nothing to write home about, but it does it's job. 
-/// Could return either HTML or PDF, depending on the enable feature flags in Cargo.toml 
+/// Simple invoice implementation, the style is nothing special, but it does it's job. 
+/// Could return either HTML or PDF, depending on the enabled feature flags.
+/// Use this as an example to create your own invoices with genpdf or askama. 
 pub struct SimpleInvoice {
     invoice: ParsedInvoice,
 

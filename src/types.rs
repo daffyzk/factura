@@ -1,5 +1,7 @@
 
+
 #[derive(Clone)]
+/// Invoice values that have gone through refinement.
 pub struct ParsedInvoice {
     pub from: PersonalInfo,
     pub to: PersonalInfo,
@@ -10,6 +12,7 @@ pub struct ParsedInvoice {
 }
 
 #[derive(Clone)]
+/// Could be either sender or reciever of the invoice.
 pub struct PersonalInfo {
     pub email: String,
     pub name: String,
@@ -21,6 +24,7 @@ pub struct PersonalInfo {
 }
 
 #[derive(Clone)]
+/// Information relevant to the invoice itself.
 pub struct InvoiceData {
     pub invoice_number: u16,
     pub due_date: String,
@@ -28,6 +32,7 @@ pub struct InvoiceData {
 }
 
 #[derive(Clone)]
+/// Payment data for the goods/services outlined in the invoice.
 pub struct Payment {
     pub wallet_address: String,
     pub currency: String,
@@ -35,6 +40,7 @@ pub struct Payment {
 }
 
 #[derive(Clone)]
+/// Good or Service, with total price calculated.
 pub struct Item {
     pub description: String,
     pub quantity: u8,
@@ -44,6 +50,7 @@ pub struct Item {
 }
 
 #[derive(Clone)]
+/// Calculated values of all items in the raw invoice.
 pub struct Total {
     pub no_tax: u32,
     pub tax_amount: u32,
@@ -51,6 +58,7 @@ pub struct Total {
     pub amount_due: u32,
 }
 
+/// Good or Service, before price calculation.
 pub struct ItemRaw {
     pub description: String,
     pub quantity: u8,
@@ -58,6 +66,7 @@ pub struct ItemRaw {
     pub tax_percent: u8,
 }
 
+/// Invoice data with no price calculations.
 pub struct RawInvoice {
     pub from: PersonalInfo,
     pub to: PersonalInfo,
