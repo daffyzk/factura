@@ -4,6 +4,7 @@ version = "0.1.1"
 edition = "2024"
 description = "Generate PDF or HTML invoices, without any external application dependencies"
 license = "MIT"
+readme = "readme.md" 
 
 [alias]
 d = "doc"
